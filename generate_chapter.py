@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -26,6 +25,7 @@ from openai import OpenAI
 ROOT = Path(__file__).resolve().parent
 NOVEL_CONFIG_PATH = ROOT / "config" / "novel_config.json"
 CHAPTERS_PATH = ROOT / "config" / "chapters.json"
+API_CONFIG_PATH = ROOT / "config" / "api_config.json"
 OUTPUT_DIR = ROOT / "output" / "chapters"
 
 
@@ -91,14 +91,15 @@ def main() -> int:
         chapters_data = load_json(CHAPTERS_PATH)
         chapter = find_chapter(chapters_data, args.num)
 
-        api_key = os.getenv("OPENAI_API_KEY", "").strip()
-        model = os.getenv("OPENAI_MODEL", "").strip()
-        base_url = os.getenv("OPENAI_BASE_URL", "").strip()
+        api_config = load_json(API_CONFIG_PATH)
+        api_key = str(api_config.get("api_key", "")).strip()
+        model = str(api_config.get("model", "")).strip()
+        base_url = str(api_config.get("base_url", "")).strip()
 
-        if not api_key:
-            raise ValueError("请设置环境变量 OPENAI_API_KEY")
+        if not api_key or api_key == "YOUR_API_KEY":
+            raise ValueError("请在 config/api_config.json 中填写 api_key")
         if not model:
-            raise ValueError("请设置环境变量 OPENAI_MODEL")
+            raise ValueError("请在 config/api_config.json 中填写 model")
 
         client_args: dict[str, str] = {"api_key": api_key}
         if base_url:
