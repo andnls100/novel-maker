@@ -7,30 +7,26 @@
     },
     "worldview": {
       "id": "worldview_001",
-      "description": ""
+      "description": "故事发生在现代都市。表面上，这是一个与现实社会没有明显区别的正常世界；实际上，城市中存在着许多超能力者。超能力者及其相关真相不会在故事开篇直接揭示，而是在后续剧情中逐步展现。"
     }
   },
   "characters": {
     "protagonist_1": {
       "id": "protagonist_1",
-      "description": ""
+      "description": "姓名：李二狗。年龄：20岁。职业：外卖员，目前没有工作。学历：高中毕业。背景：独自在大城市打工，暂时失业，住在出租屋里。他养着一只捡来的猫，平时会带着猫一起出门送外卖。"
     },
     "protagonist_2": {
       "id": "protagonist_2",
-      "description": ""
+      "description": "姓名：陈凯。职业：自媒体博主。学历：大学毕业。背景：大学毕业后一直找不到合适的工作，只能靠做自媒体谋生，是李二狗的合租室友。"
     },
     "supporting_characters": [
       {
+        "id": "cat_001",
+        "description": "李二狗捡来的猫，和李二狗一起生活。李二狗送外卖时也会带着它。猫的姓名、外形和性格暂未设定。"
+      },
+      {
         "id": "character_001",
-        "description": ""
-      },
-      {
-        "id": "character_002",
-        "description": ""
-      },
-      {
-        "id": "character_003",
-        "description": ""
+        "description": "年龄：67岁。身份：李二狗和陈凯所住小区的住户，住在他们楼上。性格极其无赖，具体姓名和其他背景暂未设定。"
       }
     ]
   }
