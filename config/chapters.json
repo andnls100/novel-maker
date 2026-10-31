@@ -1,0 +1,16 @@
+{
+  "chapters": [
+    {
+      "id": "chapter_001",
+      "number": 1,
+      "title": "第一章",
+      "description": ""
+    },
+    {
+      "id": "chapter_002",
+      "number": 2,
+      "title": "第二章",
+      "description": ""
+    }
+  ]
+}
