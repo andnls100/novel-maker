@@ -1,0 +1,37 @@
+{
+  "novel": {
+    "title": "",
+    "genre": {
+      "id": "genre_001",
+      "description": ""
+    },
+    "worldview": {
+      "id": "worldview_001",
+      "description": ""
+    }
+  },
+  "characters": {
+    "protagonist_1": {
+      "id": "protagonist_1",
+      "description": ""
+    },
+    "protagonist_2": {
+      "id": "protagonist_2",
+      "description": ""
+    },
+    "supporting_characters": [
+      {
+        "id": "character_001",
+        "description": ""
+      },
+      {
+        "id": "character_002",
+        "description": ""
+      },
+      {
+        "id": "character_003",
+        "description": ""
+      }
+    ]
+  }
+}
