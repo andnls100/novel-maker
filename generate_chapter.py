@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""根据小说整体设定和指定章节描述生成章节正文。
+"""根据小说整体设定、章节梗概和上一章正文生成章节正文。
 
 用法：
   python generate_chapter.py --num 1
   python generate_chapter.py --num 2
 
-环境变量：
-  OPENAI_API_KEY   必填
-  OPENAI_MODEL     必填，模型名称
-  OPENAI_BASE_URL  可选，OpenAI 兼容接口地址
+API 参数读取自 config/api_config.json。
+生成第 N 章（N > 1）时，会自动读取并传入第 N-1 章正文。
 """
 
 from __future__ import annotations
@@ -53,10 +51,22 @@ def find_chapter(chapters_data: dict[str, Any], number: int) -> dict[str, Any]:
     raise ValueError(f"chapters.json 中不存在第 {number} 章")
 
 
-def build_prompt(novel_config: dict[str, Any], chapter: dict[str, Any]) -> str:
+def build_prompt(
+    novel_config: dict[str, Any],
+    chapter: dict[str, Any],
+    previous_chapter: str | None = None,
+) -> str:
     novel_json = json.dumps(novel_config, ensure_ascii=False, indent=2)
     chapter_title = chapter.get("title") or f"第{chapter['number']}章"
     description = str(chapter["description"]).strip()
+    previous_section = ""
+    if previous_chapter:
+        previous_section = f"""
+【上一章正文】
+以下内容是紧邻本章的上一章完整正文。请认真阅读，并将其作为剧情连续性依据：
+{previous_chapter}
+
+"""
 
     return f"""你是一名专业的中文长篇小说作家。请根据小说整体设定，创作指定章节的完整正文。
 
@@ -64,7 +74,7 @@ def build_prompt(novel_config: dict[str, Any], chapter: dict[str, Any]) -> str:
 以下 JSON 是小说的全局设定，包含小说类型、世界观和人物设定。它是创作时必须遵守的事实依据：
 {novel_json}
 
-【本章信息】
+{previous_section}【本章信息】
 章节：{chapter_title}
 本章内容梗概：
 {description}
@@ -78,7 +88,8 @@ def build_prompt(novel_config: dict[str, Any], chapter: dict[str, Any]) -> str:
 6. 采用自然、具体、有画面感的中文叙事。合理安排动作、环境、心理和对话，不要堆砌形容词，不要反复解释读者已经知道的信息。
 7. 控制叙事节奏：场景转换清楚，事件之间衔接自然；重要情节充分展开，次要过程简洁处理。
 8. 不要在正文中解释创作过程，不要输出大纲、分析、设定复述或写作说明。
-9. 直接输出章节正文，并以章节标题开头。"""
+9. 如果提供了上一章正文，必须保持人物状态、关系、已发生事件、物品归属、地点和时间线连续；不得重复上一章已经完成的情节，也不得无依据地推翻上一章事实。可以自然承接上一章结尾。
+10. 直接输出章节正文，并以章节标题开头。"""
 
 
 def main() -> int:
@@ -90,6 +101,17 @@ def main() -> int:
         novel_config = load_json(NOVEL_CONFIG_PATH)
         chapters_data = load_json(CHAPTERS_PATH)
         chapter = find_chapter(chapters_data, args.num)
+
+        previous_chapter = None
+        if args.num > 1:
+            previous_path = OUTPUT_DIR / f"chapter_{args.num - 1:03d}.md"
+            if not previous_path.is_file():
+                raise FileNotFoundError(
+                    f"生成第 {args.num} 章前，必须先生成上一章：{previous_path.relative_to(ROOT)}"
+                )
+            previous_chapter = previous_path.read_text(encoding="utf-8").strip()
+            if not previous_chapter:
+                raise ValueError(f"上一章文件为空：{previous_path.relative_to(ROOT)}")
 
         api_config = load_json(API_CONFIG_PATH)
         api_key = str(api_config.get("api_key", "")).strip()
@@ -106,7 +128,7 @@ def main() -> int:
             client_args["base_url"] = base_url
         client = OpenAI(**client_args)
 
-        prompt = build_prompt(novel_config, chapter)
+        prompt = build_prompt(novel_config, chapter, previous_chapter)
         print(f"正在生成第 {args.num} 章，使用模型：{model}", flush=True)
 
         response = client.chat.completions.create(
